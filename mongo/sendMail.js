@@ -3,7 +3,7 @@ export const sendMail = async (email, subject, text) => {
 
   var transporter = nodemailer.createTransport(
     {
-      service: 'gmail',
+      service: "gmail",
       auth: {
         user: process.env.RESET_MAILID,
     pass: process.env.RESET_MAILPASS

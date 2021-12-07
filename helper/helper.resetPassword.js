@@ -2,7 +2,7 @@ import { mongo } from "../mongo/mongo.js";
 import bcrypt from 'bcrypt';
 import randomstring from 'randomstring';
 import { sendMail } from "../mongo/sendMail.js";
-
+import { ObjectId } from "mongodb";
 
 export const helper = {
 
@@ -10,18 +10,19 @@ export const helper = {
   const {email}=req.body
   let userDB = await mongo.users.findOne({ email: email })
   if (!userDB)
-   return res.status(400).send({ message: "User doesnt exist" })
+   return res.status(400).send({ message: "Invalid User email provided" })
 //creating random string and bcrypt to hash the token
-    let token = randomstring.generate(32);
-    console.log(token)
-    const hashtoken = await bcrypt.hash(token, Number(10))
-    console.log(hashtoken)
+    let token = randomstring.generate({
+  length: 32,
+  charset: 'alphanumeric'
+})
+
     //creating expiry after 1 hour
     let expiry = new Date(Date.now()+3600*1000)
     //updating users collection with resetToken and resetExpiry Time
     const resetUpdateDB = await mongo.users.findOneAndUpdate({ email: email }, {
       $set: {
-        "resetToken": hashtoken,
+        "resetToken": token,
         "resetExpiry": expiry,
         }
     }, { returnNewDocument: true })
@@ -29,23 +30,36 @@ export const helper = {
 
     let link = `https://password-reset-mern.netlify.app/resetPassword/${userDB._id}/${token}`;
 
-    const emailresult=  await sendMail(userDB.email, "Password Reset", `${link}`);
-
-
-
+    await sendMail(userDB.email, "Password Reset", `${link}`);
     res.status(200).send({
       message:
-        "Reset link sent to mail",emailresult:emailresult
+        "Reset link sent to mail"
     });
 
 },
 
-  async verifyToken(req, res) {
+  async verifyAndUpdatePassword(req, res) {
+    const { userid, token } = req.params;
+    let userDB = await mongo.users.findOne({ _id: ObjectId(userid) })
 
+    if (!userDB)
+    return res.status(400).send({Error:"Invalid Link or Expired"})
+    const isTokenValid = userDB.resetToken === token;
+    const isntExpired = userDB.resetExpiry > Date.now();
+    console.log(isTokenValid,isntExpired)
+    if (isTokenValid && isntExpired) {
+      const { password } = req.body;
+      const hashedNewPassword = await bcrypt.hash(password, Number(10))
+      const updatePasswordDB = await mongo.users.
+        findOneAndUpdate({ _id: ObjectId(userid) }, {
+          $set: { password: hashedNewPassword }, $unset: {
+          resetExpiry:1,resetToken:1}
+        }, { returnNewDocument: true })
 
- },
-   async verifyAndUpdatePassword(req, res) {
-
+      res.status(200).send({ success: "password updated successfully" })
+    }
+    else
+      res.status(400).send({Error:"Invalid Link or Expired"})
 
 }
 

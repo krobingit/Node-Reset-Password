@@ -8,12 +8,6 @@ router
  .route("/")
  .post(helper.sendToken);
 
-
-//verifying token with get method
-router
- .route("/:userid/:token")
- .get(helper.verifyToken);
-
 //verifying token and reset password
 router
  .route("/:userid/:token")
