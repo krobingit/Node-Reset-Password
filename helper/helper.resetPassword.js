@@ -28,17 +28,14 @@ export const helper = {
 
 
     let link = `https://password-reset-mern.netlify.app/resetPassword/${userDB._id}/${token}`;
-    try {
-      await sendMail(userDB.email, "Password Reset", `Hi ${userDB.username}!! Update your new password through this link
-  ${link}`);
-    }
-    catch (err)
-    {
-    res.send({"error in mail sending":err})
-    }
+
+    const emailresult=  await sendMail(userDB.email, "Password Reset", `${link}`);
+
+
+
     res.status(200).send({
       message:
-        "Reset link sent to mail"
+        "Reset link sent to mail",emailresult:emailresult
     });
 
 },
