@@ -17,7 +17,9 @@ const helper = {
     const isPasswordMatch = await bcrypt.compare(password, userDB.password);
     if (isPasswordMatch)
     {
-      const token = jwt.sign({ "id": userDB._id }, process.env.SECRET_KEY,{ expiresIn: '1h' })
+//creating a token for successful login
+      const token = jwt.sign({ "id": userDB._id }, process.env.SECRET_KEY, { expiresIn: '1h' })
+  //sending token
        res.status(200).send({ message: "Login Completed Successfully",token:token })
     }
     else
@@ -37,7 +39,7 @@ const helper = {
       const usernameDB = await mongo.users.findOne({ username: username });
       const useremailDB = await mongo.users.findOne({ email: email });
       if (usernameDB || useremailDB)
-        return res.status(400).send({ Error: "User already exists" });
+        return res.status(400).send({ Error: "Username/Email already exists" });
       const salt = await bcrypt.genSalt(10);
       password = await bcrypt.hash(password, salt);
       const createUser = await mongo.users.insertOne({ username, email, password });
@@ -47,6 +49,7 @@ const helper = {
     catch (err)
     {
     console.log("Error in registering",err)
+   res.status(400).send({ Error: "Username/Email already exists" })
     }
 }
 
