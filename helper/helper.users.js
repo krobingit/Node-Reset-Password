@@ -38,6 +38,7 @@ const helper = {
 
       const usernameDB = await mongo.users.findOne({ username: username });
       const useremailDB = await mongo.users.findOne({ email: email });
+      //checking if username or useremail exists in db
       if (usernameDB || useremailDB)
         return res.status(400).send({ Error: "Username/Email already exists" });
       const salt = await bcrypt.genSalt(10);

@@ -41,15 +41,18 @@ export const helper = {
   async verifyAndUpdatePassword(req, res) {
     const { userid, token } = req.params;
     let userDB = await mongo.users.findOne({ _id: ObjectId(userid) })
-
+//checking user is in db or not
     if (!userDB)
-    return res.status(400).send({Error:"Invalid Link or Expired"})
+      return res.status(400).send({ Error: "Invalid Link or Expired" })
+    //checking token is present in db is the token sent by the user or not
     const isTokenValid = userDB.resetToken === token;
+    //checking if the time limit to change the password has the expired
     const isntExpired = userDB.resetExpiry > Date.now();
     console.log(isTokenValid,isntExpired)
     if (isTokenValid && isntExpired) {
       const { password } = req.body;
       const hashedNewPassword = await bcrypt.hash(password, Number(10))
+      //deleting the token and expiry time after updating password
       const updatePasswordDB = await mongo.users.
         findOneAndUpdate({ _id: ObjectId(userid) }, {
           $set: { password: hashedNewPassword }, $unset: {
