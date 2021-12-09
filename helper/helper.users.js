@@ -30,9 +30,9 @@ const helper = {
   async register(req, res) {
     // validating using JOI schema
     try {
-      let {username,email,password,createdAt} = req.body;
+      let {username,email,password} = req.body;
       const { value, error } = registerSchema.validate(req.body)
-
+      const createdAt = new Date();
       if (error)
         return res.status(400).send({ value: value, Error: error.details[0].message });
 
