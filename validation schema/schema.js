@@ -8,7 +8,7 @@ const registerSchema = joi.object({
 })
 
 const loginSchema = joi.object({
-email:joi.string().email().required(),
+email:joi.string().required(),
  password:joi.string().pattern(new RegExp(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^\w\s]).{8,}$/)).required()
 
 })
