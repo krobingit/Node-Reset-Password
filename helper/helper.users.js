@@ -10,12 +10,10 @@ const helper = {
       const { value, error } = loginSchema.validate(req.body)
       if (error)
       return res.status(400).send({ value: value, Error: error.details[0].message });
-    const userDB = await mongo.users.findOne({ email: email });
-    const usernameDB=await mongo.users.findOne({ username:email });
+    const userDB = await mongo.users.findOne({ email: email }) || await mongo.users.findOne({ username: email });
     if (!userDB)
       return res.status(401).send({ message: "Invalid Credentials" });
-        if (!usernameDB)
-      return res.status(401).send({ message: "Invalid Credentials" });
+
 
     const isPasswordMatch = await bcrypt.compare(password, userDB.password);
     if (isPasswordMatch)
