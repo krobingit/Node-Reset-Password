@@ -30,7 +30,7 @@ const helper = {
   async register(req, res) {
     // validating using JOI schema
     try {
-      let {username,email,password} = req.body;
+      let {username,email,password,createdAt} = req.body;
       const { value, error } = registerSchema.validate(req.body)
 
       if (error)
