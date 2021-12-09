@@ -14,6 +14,8 @@ const helper = {
     const usernameDB=await mongo.users.findOne({ username:email });
     if (!userDB)
       return res.status(401).send({ message: "Invalid Credentials" });
+        if (!usernameDB)
+      return res.status(401).send({ message: "Invalid Credentials" });
 
     const isPasswordMatch = await bcrypt.compare(password, userDB.password);
     if (isPasswordMatch)
