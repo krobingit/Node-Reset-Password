@@ -43,7 +43,7 @@ const helper = {
         return res.status(400).send({ Error: "Username/Email already exists" });
       const salt = await bcrypt.genSalt(10);
       password = await bcrypt.hash(password, salt);
-      const createUser = await mongo.users.insertOne({ username, email, password });
+      const createUser = await mongo.users.insertOne({ username, email, password,createdAt });
       console.log(createUser)
       res.status(201).send({"confirmation":"User Registration Successful"});
     }
